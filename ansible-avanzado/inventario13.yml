@@ -1,0 +1,24 @@
+all:
+  children:
+    dev:
+      hosts:
+        dev-server1:
+          ansible_host: 192.168.1.10
+          app_config: "dev_config.yml"
+        dev-server2:
+          ansible_host: 192.168.1.11
+          app_config: "dev_config.yml"
+    staging:
+      hosts:
+        staging-server1:
+          ansible_host: 192.168.1.20
+          app_config: "staging_config.yml"
+    prod:
+      hosts:
+        prod-server1:
+          ansible_host: 192.168.1.30
+          app_config: "prod_config.yml"
+        prod-server2:
+          ansible_host: 192.168.1.31
+          app_config: "prod_config.yml"
+

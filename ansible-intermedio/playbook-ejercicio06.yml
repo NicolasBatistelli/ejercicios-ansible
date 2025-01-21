@@ -1,0 +1,16 @@
+---
+- name: instalar paquetes
+  hosts: all
+  become: yes
+  vars:
+    packages:
+      - git
+      - htop
+      - neofetch
+
+  tasks:
+    - name: instalando paquetes
+      apt:
+        name: "{{ item }}"
+        state: present
+        with_items: "{{ packages }}"

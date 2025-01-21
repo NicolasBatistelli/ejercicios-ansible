@@ -1,0 +1,30 @@
+---
+- name: Desplegar aplicaciones en la nube
+  hosts: Server
+  gather_facts: no
+  vars:
+    aws_region: "us-east-1"
+    aws_instance_type: "t2.micro"
+    azure_resource_group: "myResourceGroup"
+    azure_location: "East US"
+    azure_vm_name: "myVM"
+
+  tasks:
+    - name: Desplegar en AWS
+      block:
+        - name: Lanzar una instancia EC2 en AWS
+          ec2:
+            key_name: "mi_clave"
+            instance_type: "{{ aws_instance_type }}"
+            image: "ami-0abcdef1234567890"  # AMI ficticia
+            region: "{{ aws_region }}"
+            wait: yes
+            count: 1
+            assign_public_ip: yes
+            instance_tags:
+              Name: "MyEC2Instance"
+          register: ec2
+
+        - name: Mostrar información de la instancia EC2
+          debug:
+            var: ec2

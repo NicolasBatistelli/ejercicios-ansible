@@ -1,0 +1,8 @@
+# Ejercicio 1 nivel inicial
+- hosts: all
+  tasks:
+    - name: instalar git
+      apt:
+        name: git
+        state: present
+      become: yes

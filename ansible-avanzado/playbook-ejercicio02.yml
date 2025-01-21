@@ -1,0 +1,48 @@
+---
+- name: desplegar pila LEMP
+  hosts: Debian
+  become: yes
+  vars_files:
+    - vars.yml
+
+  tasks:
+    - name: actualizar el sistema
+      ansible.builtin.apt:
+        update_cache: yes
+        upgrade: dist
+      when: ansible_os_family == "Debian"
+
+    - name: instalar nginx, mysql y php
+      ansible.builtin.apt:
+        name:
+          - nginx
+          - default-mysql-server
+          - php
+          - php-fpm
+          - libapache2-mod-php
+          - php-mysql
+        state: present
+
+    - name: iniciar y habilitar el servicio de nginx
+      ansible.builtin.service:
+        name: nginx
+        state: started
+        enabled: yes
+
+    - name: crear una base de datos a modo de ejemplo
+      mysql_db:
+        name: db_ejemplo
+        state: present
+        login_user: nico
+        login_password: "{{ mysql_user_password }}"
+
+    - name: crear archivo php de ejemplo
+      ansible.builtin.copy:
+        dest: /var/www/html/info.php
+        content: |
+          <?php
+          phpinfo();
+          ?>
+        owner: www-data
+        group: www-data
+        mode: '0644'

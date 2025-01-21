@@ -1,0 +1,54 @@
+---
+- name: Instalar y ejecutar Neofetch de forma asíncrona
+  hosts: Ubuntu
+  become: yes
+
+  tasks:
+    - name: Asegurarse de que el sistema esté actualizado
+      apt:
+        update_cache: yes
+
+    - name: Verificar si Neofetch está instalado
+      command: dpkg -l neofetch
+      register: neofetch_check
+      ignore_errors: yes
+
+    - name: Instalar Neofetch si no está instalado
+      apt:
+        name: neofetch
+        state: present
+      when: neofetch_check.rc != 0
+      async: 30
+      poll: 0
+      register: install_result
+
+    - name: Comprobar resultado de la instalación
+      async_status:
+        jid: "{{ install_result.ansible_job_id }}"
+      register: job_result
+      until: job_result.finished
+      retries: 10
+      delay: 2
+      when: install_result is defined and install_result.ansible_job_id is defined
+
+    - name: Ejecutar Neofetch
+      command: neofetch
+      async: 5
+      poll: 0
+      register: neofetch_result
+      when: neofetch_check.rc == 0
+
+    - name: Comprobar resultado de la ejecución de Neofetch
+      async_status:
+        jid: "{{ neofetch_result.ansible_job_id }}"
+      register: neofetch_job_result
+      until: neofetch_job_result.finished
+      retries: 5
+      delay: 2
+      when: neofetch_result is defined and neofetch_check.rc == 0
+
+    - name: Mostrar salida de Neofetch
+      debug:
+        var: neofetch_job_result.result.stdout
+      when: neofetch_job_result.finished and neofetch_job_result.result.rc == 0
+

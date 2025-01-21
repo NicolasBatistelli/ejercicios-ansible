@@ -1,0 +1,37 @@
+---
+- name: Configurar switches y routers
+  hosts: all
+  gather_facts: no
+  connection: ansible.netcommon.network_cli
+  become: yes
+
+  tasks:
+    - name: Configurar la interfaz de un switch NX-OS
+      ansible.netcommon.nxos_interface:
+        name: Ethernet1/1
+        description: "Conexión a servidor"
+        enabled: true
+        mtu: 1500
+      register: switch_interface
+      when: "'switches' in group_names"
+
+    - name: Mostrar información de la interfaz del switch
+      debug:
+        var: switch_interface
+      when: "'switches' in group_names"
+
+    - name: Configurar una interfaz en el router IOS
+      cisco.ios.ios_interface:
+        name: GigabitEthernet0/1
+        description: "Conexión a Internet"
+        enabled: true
+        ip_address: 192.168.1.1
+        netmask: 255.255.255.0
+      register: router_interface
+      when: "'routers' in group_names"
+
+    - name: Mostrar información de la interfaz del router
+      debug:
+        var: router_interface
+      when: "'routers' in group_names"
+

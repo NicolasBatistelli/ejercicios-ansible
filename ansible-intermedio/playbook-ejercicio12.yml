@@ -1,0 +1,6 @@
+---
+- name: Configurar servidores Apache
+  hosts: Ubuntu
+  become: yes
+  roles:
+    - apache

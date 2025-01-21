@@ -1,0 +1,12 @@
+---
+- name: definir variable de entorno en sistema usando ansible
+  hosts: all
+  become: yes
+  tasks:
+    - name: agregar variables
+      copy:
+        dest: /etc/profile.d/variables_ansible.sh
+        content:
+          #!/bin/bash
+          export VAR1="variable_con_valor1"
+        mode: '0755'

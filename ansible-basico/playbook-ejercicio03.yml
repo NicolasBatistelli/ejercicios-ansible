@@ -1,0 +1,13 @@
+- name: crear y copiar archivos
+  hosts: all
+  become: yes
+  tasks:
+    - name: crear un archivo
+      copy:
+        content: "Archivo creado por ansible"
+        dest: /tmp/archivo_ansible.txt
+
+    - name: copiar el archivo
+      copy:
+        src: /tmp/archivo_ansible.txt
+        dest: /home/nico/Escritorio/ansible

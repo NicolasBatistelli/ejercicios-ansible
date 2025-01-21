@@ -1,0 +1,31 @@
+---
+- name: Despliegue según entorno
+  hosts: all
+  vars:
+    app_configs:
+      dev: "dev_config.yml"
+      staging: "staging_config.yml"
+      prod: "prod_config.yml"
+  tasks:
+    - name: Mostrar configuración del entorno
+      debug:
+        msg: "Configuración utilizada: {{ hostvars[inventory_hostname].app_config }}"
+
+    - name: Aplicar configuración de la aplicación
+      template:
+        src: "{{ hostvars[inventory_hostname].app_config }}"
+        dest: "/etc/app/config.yml"
+      when: hostvars[inventory_hostname].app_config is defined
+
+    - name: Tarea específica para desarrollo
+      command: echo "Esta es una tarea específica para el entorno de desarrollo."
+      when: hostvars[inventory_hostname].app_config == app_configs.dev
+
+    - name: Tarea específica para staging
+      command: echo "Esta es una tarea específica para el entorno de staging."
+      when: hostvars[inventory_hostname].app_config == app_configs.staging
+
+    - name: Tarea específica para producción
+      command: echo "Esta es una tarea específica para el entorno de producción."
+      when: hostvars[inventory_hostname].app_config == app_configs.prod
+

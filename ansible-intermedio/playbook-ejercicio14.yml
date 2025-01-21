@@ -1,0 +1,13 @@
+---
+- name: verificar servicio e iniciar si es necesario
+  hosts: Debian
+  become: yes
+  tasks:
+    - name: verificar si el servicio apache2 esta corriendo
+      ansible.builtin.service_facts:
+
+    - name: iniciar apache2
+      ansible.builtin.service:
+        name: apache2
+        state: started
+      when: ansible_facts.services['apache2'].state != 'running'

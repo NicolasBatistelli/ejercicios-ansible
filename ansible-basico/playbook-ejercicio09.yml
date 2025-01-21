@@ -1,0 +1,9 @@
+---
+- name: eliminar archivo
+  hosts: all
+  become: yes
+  tasks:
+    - name: eliminar archivo deseado
+      file:
+        path: /home/nico/Escritorio/ansible/archivo_ansible.txt
+        state: absent

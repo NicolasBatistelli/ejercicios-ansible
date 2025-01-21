@@ -1,0 +1,9 @@
+---
+- name: crear un directorio
+  hosts: all
+  become: yes
+  tasks:
+    - name: tarea para crear un directorio
+      ansible.builtin.file:
+        path: /home/nico/Escritorio/ansible/ansible-intermedio
+        state: directory

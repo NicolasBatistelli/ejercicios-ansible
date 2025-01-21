@@ -1,0 +1,7 @@
+---
+- name: Despliegue de Microservicios
+  hosts: Ubuntu
+  become: yes
+  roles:
+    - microservices
+

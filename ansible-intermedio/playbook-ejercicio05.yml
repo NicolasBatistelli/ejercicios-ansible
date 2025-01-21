@@ -1,0 +1,21 @@
+---
+- name: configurar SSH sin contraseña
+  hosts: all
+  become: yes
+  vars:
+    ssh_public_key: "{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+  tasks:
+    - name: asegurar que el directorio existe
+      file:
+        path: ~/.ssh
+        state: directory
+        mode: '0700'
+        owner: "{{ ansible_ssh_user }}"
+        group: "{{ ansible_ssh_user }}"
+
+    - name: copiar clave publica
+      autorized_key:
+        user: "{{ ansible_ssh_user }}"
+        state: present
+        key: "{{ ssh_public_key }}"

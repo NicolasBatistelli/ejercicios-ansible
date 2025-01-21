@@ -1,0 +1,38 @@
+---
+- name: Limpiar claves GPG y agregar nuevas
+  hosts: Server
+  become: yes
+  tasks:
+    - name: Eliminar todas las claves GPG antiguas de Docker
+      command: apt-key del $(apt-key list | grep -B1 'Docker' | head -n1 | awk '{print $2}')
+      ignore_errors: yes
+
+    - name: Eliminar todas las claves GPG antiguas de Kubernetes
+      command: apt-key del $(apt-key list | grep -B1 'Kubernetes' | head -n1 | awk '{print $2}')
+      ignore_errors: yes
+
+    - name: Agregar la clave GPG de Docker
+      apt_key:
+        url: https://download.docker.com/linux/ubuntu/gpg
+        state: present
+
+    - name: Agregar el repositorio de Docker
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu jammy stable"
+        state: present
+
+    - name: Agregar la clave GPG de Kubernetes
+      apt_key:
+        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        state: present
+
+    - name: Agregar el repositorio de Kubernetes
+      apt_repository:
+        repo: "deb https://apt.kubernetes.io/ kubernetes-jammy main"
+        state: present
+
+    - name: Actualizar paquetes
+      apt:
+        update_cache: yes
+        upgrade: yes
+

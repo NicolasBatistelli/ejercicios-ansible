@@ -1,0 +1,98 @@
+---
+- name: Instalar y configurar MicroK8s
+  hosts: Server
+  become: true
+
+  tasks:
+    - name: Instalar MicroK8s
+      snap:
+        name: microk8s
+        state: present
+        classic: yes
+
+    - name: Agregar usuario al grupo de MicroK8s
+      user:
+        name: nico-admin
+        groups: microk8s
+        append: yes
+
+    - name: Asegurarse de que el directorio .kube exista
+      file:
+        path: /home/nico-admin/.kube
+        state: directory
+        owner: nico-admin
+        mode: '0700'
+
+    - name: Cambiar propietario de .kube
+      command: chown -f -R nico-admin /home/nico-admin/.kube
+
+    - name: Verificar usuario actual
+      command: whoami
+      register: current_user
+
+    - debug:
+        var: current_user.stdout
+
+    - name: Verificar grupos del usuario actual
+      command: id -nG
+      register: user_groups
+
+    - debug:
+        var: user_groups.stdout
+
+    - name: Verificar estado de MicroK8s
+      command: microk8s status --wait-ready
+      become: true
+      become_user: nico-admin
+
+    - name: Habilitar servicios de MicroK8s
+      command: microk8s enable dashboard dns ingress
+      become: true
+      become_user: nico-admin
+
+    - name: Verificar que Kubernetes esté funcionando
+      command: microk8s kubectl get all --all-namespaces
+      register: kubectl_output
+      become: true
+      become_user: nico-admin
+
+    - name: Mostrar estado de Kubernetes
+      debug:
+        var: kubectl_output.stdout
+
+    - name: Desplegar un ejemplo de aplicación (nginx)
+      copy:
+        dest: /tmp/nginx-deployment.yaml
+        content: |
+          apiVersion: apps/v1
+          kind: Deployment
+          metadata:
+            name: nginx-deployment
+            labels:
+              app: nginx
+          spec:
+            replicas: 2
+            selector:
+              matchLabels:
+                app: nginx
+            template:
+              metadata:
+                labels:
+                  app: nginx
+              spec:
+                containers:
+                - name: nginx
+                  image: nginx:latest
+                  ports:
+                  - containerPort: 80
+
+    - name: Crear el despliegue de nginx
+      command: microk8s kubectl apply -f /tmp/nginx-deployment.yaml
+      become: true
+      become_user: nico-admin
+
+    - name: Comprobar el estado del despliegue
+      command: microk8s kubectl rollout status deployment/nginx-deployment
+      become: true
+      become_user: nico-admin
+

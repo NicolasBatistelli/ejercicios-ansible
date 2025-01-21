@@ -1,0 +1,47 @@
+---
+- name: Configurar volúmenes LVM y montar sistemas de archivos
+  hosts: Debian
+  become: yes
+
+  tasks:
+    - name: Instalar paquetes necesarios
+      package:
+        name:
+          - lvm2
+        state: present
+
+    - name: Crear un grupo de volúmenes
+      lvg:
+        vg: vg_data
+        pvs: /dev/sda3  
+
+    - name: Crear un volumen lógico
+      lvol:
+        vg: vg_data
+        lv: lv_data
+        size: 2G  
+
+    - name: Crear sistema de archivos en el volumen lógico
+      filesystem:
+        fstype: ext4
+        dev: /dev/vg_data/lv_data
+
+    - name: Crear punto de montaje
+      file:
+        path: /mnt/data
+        state: directory
+
+    - name: Montar el sistema de archivos
+      mount:
+        path: /mnt/data
+        src: /dev/vg_data/lv_data
+        fstype: ext4
+        state: mounted
+
+    - name: Asegurarse de que el sistema de archivos se monte al iniciar
+      mount:
+        path: /mnt/data
+        src: /dev/vg_data/lv_data
+        fstype: ext4
+        state: present
+

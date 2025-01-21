@@ -1,0 +1,26 @@
+---
+- name: Despliegue de MySQL en un servidor
+  hosts: all
+  become: yes
+  vars_files:
+    - vars.yml
+
+  tasks:
+    - name: Instalar MySQL
+      apt:
+        name: mysql-server
+        state: present
+
+    - name: Asegurarse de que el servicio de MySQL esté en ejecución
+      service:
+        name: mysql
+        state: started
+        enabled: yes
+
+    - name: Crear la base de datos
+      mysql_db:
+        name: "{{ mysql_db_name }}"
+        state: present
+        login_user: nico
+        login_password: "{{ mysql_user_password }}"
+

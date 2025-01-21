@@ -1,0 +1,20 @@
+---
+- name: instalar y configurar Apache
+  hosts: all
+  become: yes
+  tasks:
+    - name: actualizar el sistema
+      apt:
+        update_cache: yes
+        upgrade: dist
+
+    - name: instalar apache
+      apt:
+        name: apache2
+        state: present
+
+    - name: iniciar el servicio de apache
+      service:
+        name: apache2
+        state: started
+        enabled: yes

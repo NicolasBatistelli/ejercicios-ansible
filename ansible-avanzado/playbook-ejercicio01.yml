@@ -1,0 +1,24 @@
+---
+- name: desplegar una app en docker
+  hosts: Debian
+  become: yes
+  tasks:
+    - name: verificar que docker este en ejecucion
+      ansible.builtin.service:
+        name: docker
+        state: started
+
+    - name: descargar imagen de Nginx
+      community.docker.docker_image:
+        name: nginx
+        tag: latest
+        source: pull
+
+    - name: crear y desplegar el contenedor
+      community.docker.docker_container:
+        name: imagen_nginx
+        image: nginx:latest
+        state: started
+        ports:
+          - "90:90"
+        restart_policy: always

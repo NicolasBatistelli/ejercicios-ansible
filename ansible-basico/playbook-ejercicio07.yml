@@ -1,0 +1,14 @@
+ - hosts: all
+   become: yes
+   vars:
+     paquetes_a_instalar:
+     - git
+     - curl
+     - vim
+   tasks:
+    - name: Instalar los paquetes mediante variables
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop: "{{ paquetes_a_instalar }}"
+

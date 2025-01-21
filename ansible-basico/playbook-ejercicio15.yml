@@ -1,0 +1,24 @@
+---
+- name: abrir puerto 22 con firewall
+  hosts: all
+  become: yes
+  tasks:
+    - name: UFW este instalado
+      apt:
+        name: ufw
+        state: present
+
+    - name: habilitar ufw
+      ufw:
+        state: enabled
+
+    - name: abrir puerto 22
+      ufw:
+        rule: allow
+        port: 22
+        proto: tcp
+
+    - name: denegar el trafico entrante por defecto
+      ufw:
+        state: enabled
+        policy: deny

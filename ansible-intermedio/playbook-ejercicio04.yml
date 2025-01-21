@@ -1,0 +1,44 @@
+---
+- name: Desplegar web con jinja2
+  hosts: all
+  become: yes
+  vars:
+    document_root: /var/www/html
+    title: "Pagina web con Jinja2"
+    heading: "Bienvenido a la pagina web"
+    message: "Pagina hecha con ansible usando jinja2"
+
+  tasks:
+    - name: crear directorio para el documento raiz
+      file:
+        path: "{{ document_root }}"
+        state: directory
+        owner: www-data
+        group: www-data
+        mode: '0755'
+
+    - name: eliminar HTML viejo
+      file:
+        path: "{{ document_root }}/index.html"
+        state: absent
+
+    - name: copiar archivo HTML
+      template:
+        src: /home/nico/Escritorio/ansible/ansible-intermedio/files/index_jinja/index.html.j2
+        dest: "{{ document_root }}/index.html"
+        owner: www-data
+        group: www-data
+        mode: '0644'
+      notify: Reiniciar Nginx
+
+  handlers:
+    - name: Reiniciar Nginx
+      service:
+        name: nginx
+        state: restarted
+
+    - name: verificar que Nginx este ejecutando
+      service:
+        name: nginx
+        state: started
+        enabled: yes

@@ -1,0 +1,26 @@
+---
+- name: Backup y modificación de archivos
+  hosts: all
+  become: yes
+  vars:
+    archivo_a_modificar: /home/nico/Escritorio/ansible/ansible-intermedio/archivo.txt
+    directorio_backup: /home/nico/Escritorio/ansible/ansible-intermedio/backup
+
+  tasks:
+    - name: Crear el directorio de backup si no existe
+      file:
+        path: "{{ directorio_backup }}"
+        state: directory
+        mode: '0755'
+
+    - name: Hacer backup del archivo antes de modificarlo
+      copy:
+        src: "{{ archivo_a_modificar }}"
+        dest: "{{ directorio_backup }}/{{ archivo_a_modificar | basename }}.bak"
+        remote_src: yes
+
+    - name: Modificar el archivo
+      copy:
+        src: /home/nico/Escritorio/ansible/ansible-intermedio/archivo.txt
+        dest: "{{ archivo_a_modificar }}"
+

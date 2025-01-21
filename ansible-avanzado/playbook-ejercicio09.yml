@@ -1,0 +1,39 @@
+---
+- name: Configurar Nginx como balanceador de carga
+  hosts: Ubuntu
+  become: yes
+
+  tasks:
+    - name: Instalar Nginx
+      apt:
+        name: nginx
+        state: present
+      when: ansible_os_family == "Debian"
+
+    - name: Configurar Nginx
+      copy:
+        src: nginx.conf
+        dest: /etc/nginx/nginx.conf
+      notify: restart nginx
+
+    - name: Crear directorio para sitios
+      file:
+        path: /etc/nginx/sites-available
+        state: directory
+
+    - name: Crear archivo de configuración del sitio
+      copy:
+        src: default.conf
+        dest: /etc/nginx/sites-available/default.conf
+      notify: restart nginx
+
+    - name: Habilitar el sitio
+      command: nginx -s reload
+      notify: restart nginx
+
+  handlers:
+    - name: restart nginx
+      service:
+        name: nginx
+        state: restarted
+

@@ -1,0 +1,5 @@
+---
+mysql_root_password: "admin"
+mysql_db_name: "ansible"
+mysql_user: "nico"
+mysql_user_password: "nico"

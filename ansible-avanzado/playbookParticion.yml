@@ -1,0 +1,23 @@
+---
+- name: configurar particiones y LVM
+  hosts: Server
+  become: yes
+  tasks:
+    - name: crear volumen logico en caso de que no exista
+      lvol:
+        vg: ubuntu-vg
+        lv: lv_datos
+        size: 3G
+      when: not ansible_fatcts['lvm']['volumes']['ubuntu-vg']['lv_datos'] is defined
+
+    - name: formatear el volumen logico
+      filesystem:
+        fstype: ext4
+        dev: /dev/ubuntu-vg/lv_datos
+
+    - name: montar el sistema de archivos
+      mount:
+        path: /mnt/datos
+        src: /dev/ubuntu-vg/lv_datos
+        fstype: ext4
+        state: mounted

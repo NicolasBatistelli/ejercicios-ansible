@@ -1,0 +1,11 @@
+---
+- name: ejecutar comando en servidor
+  hosts: all
+  tasks:
+    - name: obtener tiempo del sistema
+      command: uptime
+      register: uptime_output
+
+    - name: mostrar el resultado de uptime
+      debug:
+       var: uptime_output.stdout

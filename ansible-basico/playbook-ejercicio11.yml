@@ -1,0 +1,9 @@
+---
+- hosts: all
+  become: yes
+  tasks:
+    - name: verificar linea en archivo
+      lineinfile:
+        path: /home/nico/Escritorio/ansible/archivo_ansible.txt
+        line: "Archivo creado por ansible"
+        state: present

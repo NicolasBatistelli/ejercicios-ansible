@@ -1,0 +1,27 @@
+---
+- name: Configuración según el sistema operativo
+  hosts: all
+  gather_facts: true
+  tasks:
+    - name: Configurar variables según el sistema operativo
+      set_fact:
+        paquete: "{{ 'curl' if ansible_os_family == 'Debian' else 'wget' }}"
+        archivo_destino: "{{ '/tmp/archivo_debian.txt' if ansible_os_family == 'Debian' else '/tmp/archivo_redhat.txt' }}"
+
+    - name: Instalar el paquete correspondiente
+      apt:
+        name: "{{ paquete }}"
+        state: present
+      when: ansible_os_family == 'Debian'
+
+    - name: Instalar el paquete correspondiente
+      yum:
+        name: "{{ paquete }}"
+        state: present
+      when: ansible_os_family == 'RedHat'
+
+    - name: Crear un archivo en el destino correspondiente
+      copy:
+        content: "Este archivo fue creado en un sistema {{ ansible_os_family }}."
+        dest: "{{ archivo_destino }}"
+

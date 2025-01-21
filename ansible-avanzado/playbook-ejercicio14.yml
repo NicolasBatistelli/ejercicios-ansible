@@ -1,0 +1,17 @@
+---
+- name: Demo de Filtros y Plugins Personalizados
+  hosts: Ubuntu 
+  gather_facts: no
+  tasks:
+    - name: Definir una variable
+      set_fact:
+        original_string: "Ansible es genial"
+
+    - name: Mostrar la cadena original
+      debug:
+        msg: "Cadena original: {{ original_string }}"
+
+    - name: Mostrar la cadena revertida usando el filtro personalizado
+      debug:
+        msg: "Cadena revertida: {{ original_string | reverse_string }}"
+

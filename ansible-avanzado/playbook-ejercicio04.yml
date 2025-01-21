@@ -1,0 +1,48 @@
+---
+- name: Generar e instalar certificados SSL
+  hosts: Debian
+  become: yes
+  vars:
+    ssl_cert_dir: /etc/ssl/certs
+    ssl_key_dir: /etc/ssl/private
+    cert_name: "mi_certificado"
+    country: "AR"
+    state: "Buenos Aires"
+    locality: "Buenos Aires"
+    organization: "Mi Empresa"
+    organizational_unit: "IT"
+    common_name: "mi_dominio.com"
+
+  tasks:
+    - name: Crear directorios para certificados
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: '0755'
+      loop:
+        - "{{ ssl_cert_dir }}"
+        - "{{ ssl_key_dir }}"
+
+    - name: Generar clave privada
+      command: >
+        openssl genrsa -out {{ ssl_key_dir }}/{{ cert_name }}.key 2048
+      args:
+        creates: "{{ ssl_key_dir }}/{{ cert_name }}.key"
+
+    - name: Crear solicitud de firma de certificado (CSR)
+      command: >
+        openssl req -new -key {{ ssl_key_dir }}/{{ cert_name }}.key -out {{ ssl_cert_dir }}/{{ cert_name }}.csr
+        -subj "/C={{ country }}/ST={{ state }}/L={{ locality }}/O={{ organization }}/OU={{ organizational_unit }}/CN={{ common_name }}"
+      args:
+        creates: "{{ ssl_cert_dir }}/{{ cert_name }}.csr"
+
+    - name: Generar certificado autofirmado
+      command: >
+        openssl x509 -req -days 365 -in {{ ssl_cert_dir }}/{{ cert_name }}.csr -signkey {{ ssl_key_dir }}/{{ cert_name }}.key -out {{ ssl_cert_dir }}/{{ cert_name }}.crt
+      args:
+        creates: "{{ ssl_cert_dir }}/{{ cert_name }}.crt"
+
+    - name: Asegurar permisos de la clave privada
+      file:
+        path: "{{ ssl_key_dir }}/{{ cert_name }}.key"
+        mode: '0600'

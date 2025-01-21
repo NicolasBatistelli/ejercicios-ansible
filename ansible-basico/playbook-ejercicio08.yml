@@ -1,0 +1,17 @@
+---
+- name: crear usuario y grupo
+  hosts: all
+  become: yes
+  tasks:
+    - name: crear grupo
+      group:
+        name: grupo_ansible
+        state: present
+
+    - name: crear usuario y agregarlo al grupo
+      user:
+        name: usuario_ansible
+        state: present
+        group: grupo_ansible
+        shell: /bin/bash
+        password: ""

@@ -1,0 +1,43 @@
+- name: Instalar Docker en servidores
+  hosts: Server
+  become: yes
+  tasks:
+    - name: Actualizar el sistema
+      apt:
+        update_cache: yes
+
+    - name: Instalar dependencias para apt
+      apt:
+        name:
+          - apt-transport-https
+          - ca-certificates
+          - curl
+          - software-properties-common
+
+    - name: Agregar la clave GPG de Docker
+      apt_key:
+        url: https://download.docker.com/linux/debian/gpg
+        state: present
+
+    - name: Agregar el repositorio de Docker
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_lsb.codename }} stable"
+        state: present
+
+    - name: Instalar Docker
+      apt:
+        name: docker-ce
+        state: present
+
+    - name: Iniciar el servicio de Docker
+      service:
+        name: docker
+        state: started
+        enabled: yes
+
+    - name: Agregar el usuario actual al grupo Docker
+      user:
+        name: "{{ ansible_env.USER }}"
+        groups: docker
+        append: yes
+

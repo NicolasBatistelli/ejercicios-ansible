@@ -1,0 +1,26 @@
+---
+- name: desplegar web simple
+  hosts: all
+  become: yes
+  tasks:
+    - name: verificar si apache esta instalado
+      apt:
+        name: apache2
+        state: present
+
+    - name: crear el directorio para la web
+      file:
+        path: /var/www/html
+        state: directory
+        mode: '0755'
+
+    - name: copiar el html
+      copy:
+        src: /home/nico/Escritorio/ansible/ansible-intermedio/files/index.html
+        dest: /var/www/html/index.html
+
+    - name: verificar que apache este corriendo
+      service:
+        name: apache2
+        state: started
+        enabled: yes

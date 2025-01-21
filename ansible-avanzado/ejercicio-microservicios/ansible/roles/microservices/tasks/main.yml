@@ -1,0 +1,57 @@
+---
+- name: Instalar Docker
+  apt:
+    name: docker.io
+    state: present
+  when: ansible_os_family == "Debian"
+
+- name: Obtener la última versión de Docker Compose
+  uri:
+    url: https://api.github.com/repos/docker/compose/releases/latest
+    return_content: yes
+  register: compose_release
+
+- name: Extraer la versión de Docker Compose
+  set_fact:
+    compose_version: "{{ (compose_release.json.tag_name) }}"
+
+- name: Formar la URL de descarga de Docker Compose
+  set_fact:
+    compose_download_url: "https://github.com/docker/compose/releases/download/{{ compose_version }}/docker-compose-Linux-x86_64"
+
+- name: Comprobar si la URL de descarga es válida
+  uri:
+    url: "{{ compose_download_url }}"
+    method: HEAD
+  register: url_check
+  ignore_errors: yes
+
+- name: Descargar Docker Compose
+  get_url:
+    url: "{{ compose_download_url }}"
+    dest: /usr/local/bin/docker-compose
+    mode: '0755'
+  when: url_check.status == 200
+
+- name: Verificar instalación de Docker Compose
+  command: docker-compose --version
+  register: compose_check
+
+- debug:
+    var: compose_check.stdout
+
+- name: Crear el directorio de la aplicación
+  file:
+    path: /opt/microservices
+    state: directory
+
+- name: Copiar el archivo de Docker Compose
+  template:
+    src: docker-compose.yml.j2
+    dest: /opt/microservices/docker-compose.yml
+
+- name: Iniciar los servicios de microservicios
+  command: docker-compose up -d
+  args:
+    chdir: /opt/microservices
+

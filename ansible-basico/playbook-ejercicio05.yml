@@ -1,0 +1,7 @@
+ - hosts: all
+   become: yes
+   tasks:
+     - name: modificar permisos de un archivo
+       file:
+        path: /home/nico/Escritorio/ansible/archivo_ansible.txt
+        mode: '777'

@@ -1,0 +1,12 @@
+---
+- name: Configurar un cron job
+  hosts: all
+  become: yes
+  tasks:
+    - name: Crear un cron job para ejecutar un script todos los días a las 2:00 AM
+      cron:
+        name: "Ejecutar script diario"
+        minute: "0"
+        hour: "2"
+        user: "nico"  # Cambia esto al usuario que debe ejecutar el script
+        job: "/home/nico/Escritorio/ansible/ansible-intermedio/script.sh >> /home/nico/Escritorio/ansible/ansible-intermedio/registro.log 2>&1"

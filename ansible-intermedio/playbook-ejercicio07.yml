@@ -1,0 +1,11 @@
+---
+- name: configurar tareas segun OS
+  hosts: all
+  become: yes
+
+  tasks:
+    - name: instalar un paquete en Ubuntu
+      apt:
+        name: apache2
+        state: present
+      when: ansible_os_family == "Ubuntu"
